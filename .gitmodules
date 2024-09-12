@@ -1,0 +1,3 @@
+[submodule "CNMF_E"]
+	path = CNMF_E
+	url = https://github.com/zhoupc/CNMF_E.git
