@@ -1,9 +1,14 @@
-%% Main File to simulate entire Social Valence data pipeline
+clear main;
+clc;
 main()
 
 function main
+    addpath("functions");
     setupSource()
-    createTestData()
+    segmentFilename = "data/init_two_seg.mat";
+    dataFilename = "data/init_two_data.mat";
+    createTestData(segmentFilename, dataFilename);
+    binning(segmentFilename, dataFilename);
 end
 
 function setupSource
@@ -11,11 +16,14 @@ function setupSource
     run CNMF_E/cnmfe_setup.m;
 end
 
-function createTestData
+function createTestData(segmentFilename, dataFilename)
+    if exist(segmentFilename, "file") && exist(dataFilename, "file")
+        return
+    end
     disp("Create simulation configuration file");
     data = load("CSDS/1035_Def8.mat");
-    defineInitExp(data.segment, "init_two_seg.mat");
-    defineInitData(data, "init_two_data.mat");
+    defineInitExp(data.segment, segmentFilename);
+    defineInitData(data, dataFilename);
 end
 
 function defineInitExp(data, filename)
@@ -36,19 +44,18 @@ function defineInitExp(data, filename)
     seg = data.seg;
     NeuStart = data.NeuStart;
     NeuEnd = data.NeuEnd;
-    binwidth = data.binwidth;
     save("data/" + filename, "mouseID", "session", ...
         "CaImgChannel", "BehavChannel", ...
         "CaImgRawFN", "CaImgRawtime", ...
         "BehavRawFN", "BehavRawtime", ...
         "CaImgStartFN", "CaImgStartFtime", "CaImgEndFN", ...
         "BehavStartFN", "BehavStartFtime", "BehavEndFN", ...
-        "seg", "NeuStart", "NeuEnd", "binwidth");
+        "seg", "NeuStart", "NeuEnd");
 end
 
 function defineInitData(data, filename)
     coordinates = data.coordinates;
     neuron = data.neuron;
     timestamp = data.timestamp;
-    save("data/" + filename, "coordinates", "neuron", "timestamp");
+    save(filename, "coordinates", "neuron", "timestamp");
 end
