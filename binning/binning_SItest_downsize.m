@@ -52,34 +52,34 @@ end
 
 % calculate angle vs the box (angle; nose of observer to the box, empty or with a CD1)
 for i=1:frame
-serX=[Xbox coordinates.xh(i) coordinates.xn(i)];
-serY=[Ybox coordinates.yh(i) coordinates.yn(i)];
-c=sqrt((Ybox-coordinates.yn(i))^2+(Xbox-coordinates.xn(i))^2);
-a=sqrt((Ybox-coordinates.yh(i))^2+(Xbox-coordinates.xh(i))^2);
-b=sqrt((coordinates.yh(i)-coordinates.yn(i))^2+(coordinates.xh(i)-coordinates.xn(i))^2);
-d=rad2deg(acos((b^2+c^2-a^2)/(2*b*c)));
-tf=ispolycw(serX,serY);
-if tf>0
-    coordinates.angle(i)=d;
-else
-    coordinates.angle(i)=0-d;
-end
+    serX=[Xbox coordinates.xh(i) coordinates.xn(i)];
+    serY=[Ybox coordinates.yh(i) coordinates.yn(i)];
+    c=sqrt((Ybox-coordinates.yn(i))^2+(Xbox-coordinates.xn(i))^2);
+    a=sqrt((Ybox-coordinates.yh(i))^2+(Xbox-coordinates.xh(i))^2);
+    b=sqrt((coordinates.yh(i)-coordinates.yn(i))^2+(coordinates.xh(i)-coordinates.xn(i))^2);
+    d=rad2deg(acos((b^2+c^2-a^2)/(2*b*c)));
+    tf=ispolycw(serX,serY);
+    if tf>0
+        coordinates.angle(i)=d;
+    else
+        coordinates.angle(i)=0-d;
+    end
 end
 
 % calculate compass angle (direction) for the observer mouse
 for i=1:frame
-serX=[coordinates.xn(i) coordinates.xh(i) coordinates.xn(i)];
-serY=[0 coordinates.yh(i) coordinates.yn(i)];
-c=sqrt((0-coordinates.yn(i))^2+(coordinates.xn(i)-coordinates.xn(i))^2);
-a=sqrt((0-coordinates.yh(i))^2+(coordinates.xn(i)-coordinates.xh(i))^2);
-b=sqrt((coordinates.yh(i)-coordinates.yn(i))^2+(coordinates.xh(i)-coordinates.xn(i))^2);
-d=rad2deg(acos((b^2+c^2-a^2)/(2*b*c)));
-tf=ispolycw(serX,serY);
-if tf>0
-    coordinates.direction1(i)=360-d;
-else
-    coordinates.direction1(i)=d;
-end
+    serX=[coordinates.xn(i) coordinates.xh(i) coordinates.xn(i)];
+    serY=[0 coordinates.yh(i) coordinates.yn(i)];
+    c=sqrt((0-coordinates.yn(i))^2+(coordinates.xn(i)-coordinates.xn(i))^2);
+    a=sqrt((0-coordinates.yh(i))^2+(coordinates.xn(i)-coordinates.xh(i))^2);
+    b=sqrt((coordinates.yh(i)-coordinates.yn(i))^2+(coordinates.xh(i)-coordinates.xn(i))^2);
+    d=rad2deg(acos((b^2+c^2-a^2)/(2*b*c)));
+    tf=ispolycw(serX,serY);
+    if tf>0
+        coordinates.direction1(i)=360-d;
+    else
+        coordinates.direction1(i)=d;
+    end
 end
 
 
@@ -141,34 +141,6 @@ end
 NeuC=tempNeuC(:,binnedCaImg(NeuStart,1):binnedCaImg(NeuEnd,1));
 NeuS=tempNeuS(:,binnedCaImg(NeuStart,1):binnedCaImg(NeuEnd,1));
 
-% estimate normNeuC
-
-[seg,frames]=size(NeuC);
-
-normNeuC=[];
-for x=1:seg
-normNeuC(x,:)=NeuC(x,:)/max(NeuC(x,:));
-end
-
-% find active frames > Rmean (Robust mean =
-% mean+2SD)
-
-m2sd_frames=fix(frames-0.025*frames);
-
-% Find frames with 
-
-Rmean=[];
-activeNeuC=zeros(seg,frames);
-
-Rmean(numel(seg))=0;
-
-for i=1:seg
-    tempsortedNeuC=sort(normNeuC(i,:));
-    Rmean(i)=mean(tempsortedNeuC(1:m2sd_frames));
-    tempactive=find(normNeuC(i,:)>Rmean(i));
-    activeNeuC(i,tempactive)=1;
-end
-
 % binning behavioral data from coordinates
 CaImgTime=timestamp.sysClock(timestamp.camNum==segment.CaImgChannel);
 binnedCaImg=discretize(CaImgTime,edgeTime);
@@ -181,7 +153,6 @@ tempNoseY=accumarray(binnedBehav,coordinates.yh,[],@mean);
 tempAngle=accumarray(binnedBehav,coordinates.angle,[],@mean);
 tempDirection=accumarray(binnedBehav,coordinates.direction1,[],@mean);
 tempDistanceH=accumarray(binnedBehav,coordinates.h2boxDist,[],@mean);
-tempDistanceB=accumarray(binnedBehav,coordinates.b2boxDist,[],@mean);
 
 HeadX=tempHeadX(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
 HeadY=tempHeadY(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
@@ -190,18 +161,6 @@ NoseY=tempNoseY(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEnd
 Angle=tempAngle(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
 Direction=tempDirection(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
 DistanceH=tempDistanceH(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
-DistanceB=tempDistanceB(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
-
-View(numel(Direction))=0;
-
-for i=1:numel(Direction)
-if Direction(i)>180
-View(i)=360-Direction(i);
-else
-View(i)=Direction(i);
-end
-end
-View=View.';
 
 % Speed and Displacement
 
@@ -229,7 +188,6 @@ if length(Angle)>length(NeuC)
     View(length(Angle))=[];
     Speed(length(Angle))=[];
     Displacement(length(Angle))=[];
-else
 end
 
 % estimate Close and Far

@@ -5,10 +5,11 @@ main()
 function main
     addpath("functions");
     setupSource()
-    segmentFilename = "data/init_two_seg.mat";
-    dataFilename = "data/init_two_data.mat";
+    segmentFilename = "data/init_one_seg.mat";
+    dataFilename = "data/init_one_data.mat";
+    isSingleMouse = 1;
     createTestData(segmentFilename, dataFilename);
-    binning(segmentFilename, dataFilename);
+    binning(segmentFilename, dataFilename, isSingleMouse);
 end
 
 function setupSource
