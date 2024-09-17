@@ -1,9 +1,3 @@
-% binning calcium imaging data using downsize video files (skip 2 frames
-% and kept the next frame; binning behavioral data using the original
-% timestamp values
-
-cd('D:\temp\updated files\tif')
-
 % Input variables in structure array segment
 prompt='Please input the Mouse ID:';
 segment.mouseID = input(prompt,'s');
@@ -21,30 +15,23 @@ prompt='Please input the raw # of frames of Behav:';
 segment.BehavRawFN = input(prompt);
 prompt='Please input the total time (in ms) of all frames of Behav:';
 segment.BehavRawtime = input(prompt);
-% prompt='Please input the starting frame # of CaImg that was analyzed by CNMF-E:';
-% segment.CaImgStartFN = input(prompt);
-segment.CaImgStartFN = 1;
-% prompt='Please input the starting frame time (in ms) of CaImg that was analyzed by CNMF-E:';
-% segment.CaImgStartFtime = input(prompt);
-segment.CaImgStartFtime = 1;
-% prompt='Please input the ending frame # of CaImg that was analyzed by CNMF-E:';
-% segment.CaImgEndFN = input(prompt);
-segment.CaImgEndFN = segment.CaImgRawFN;
-% prompt='Please input the starting frame # of Behav with analyzed CaImg data:';
-% segment.BehavStartFN = input(prompt);
-segment.BehavStartFN = 1;
-% prompt='Please input the starting frame time (in ms) of Behav with analyzed CaImg data:';
-% segment.BehavStartFtime = input(prompt);
-segment.BehavStartFtime = 1;
-% prompt='Please input the ending frame # of Behav with analyzed CaImg data:';
-% segment.BehavEndFN = input(prompt);
-segment.BehavEndFN = segment.BehavRawFN;
+prompt='Please input the starting frame # of CaImg that was analyzed by CNMF-E:';
+segment.CaImgStartFN = input(prompt);
+prompt='Please input the starting frame time (in ms) of CaImg that was analyzed by CNMF-E:';
+segment.CaImgStartFtime = input(prompt);
+prompt='Please input the ending frame # of CaImg that was analyzed by CNMF-E:';
+segment.CaImgEndFN = input(prompt);
+prompt='Please input the starting frame # of Behav with analyzed CaImg data:';
+segment.BehavStartFN = input(prompt);
+prompt='Please input the starting frame time (in ms) of Behav with analyzed CaImg data:';
+segment.BehavStartFtime = input(prompt);
+prompt='Please input the ending frame # of Behav with analyzed CaImg data:';
+segment.BehavEndFN = input(prompt);
 prompt='Please input the segments:';
 segment.seg = input(prompt);
-prompt='Please input the starting frame of Neuron.C:';
+prompt='Please input the starting frame of Neuron.S:';
 segment.NeuStart = input(prompt);
-% segment.NeuStart = 1;
-prompt='Please input the ending frame of Neuron.C:';
+prompt='Please input the ending frame of Neuron.S:';
 segment.NeuEnd = input(prompt);
 
 % calculate the direction of head vs the enclosure using ispolysw from
