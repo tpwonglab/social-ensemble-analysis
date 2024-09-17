@@ -9,7 +9,8 @@ function main
     dataFilename = "data/init_one_data.mat";
     isSingleMouse = 1;
     createTestData(segmentFilename, dataFilename);
-    binning(segmentFilename, dataFilename, isSingleMouse);
+    outputFilename = binning(segmentFilename, dataFilename, isSingleMouse);
+    csi(outputFilename);
 end
 
 function setupSource

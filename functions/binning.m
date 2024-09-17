@@ -1,4 +1,4 @@
-function binning(segmentFilename, dataFilename, isSingleMouse)
+function outputFilename = binning(segmentFilename, dataFilename, isSingleMouse)
     %% Define segment
     if isempty(segmentFilename)
         disp("Create new segment file")
@@ -157,6 +157,7 @@ function binning(segmentFilename, dataFilename, isSingleMouse)
         if exist(filename, "file")
             delete(filename);
         end
+        outputFilename = filename;
         save(filename, 'coordinates', 'timestamp', 'neuron', 'segment', 'HeadX', 'HeadY', 'NoseX', 'NoseY', 'Xbox', 'Ybox', 'Angle', 'Compass', 'DistanceH', 'NeuS', 'NeuP', 'Behav_A50_D10', 'Behav_A50_Dfar', 'Displacement', 'Speed');
         return
     end
@@ -264,6 +265,7 @@ function binning(segmentFilename, dataFilename, isSingleMouse)
     if exist(filename, "file")
         delete(filename);
     end
+    outputFilename = filename;
     save(filename,'coordinates','timestamp', 'neuron','segment','HeadX','HeadX2','HeadY','HeadY2','NoseX','NoseX2','NoseY','NoseY2','Angle','Angle2','Compass','DistanceH','NeuS','NeuP','Behav_A50_D10','Behav_A50_Dfar','Displacement','Speed');
 end
 
