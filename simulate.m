@@ -5,12 +5,12 @@ main()
 function main
     addpath("functions");
     setupSource()
-    segmentFilename = "data/init_one_seg.mat";
-    dataFilename = "data/init_one_data.mat";
-    isSingleMouse = 1;
+    segmentFilename = "data/init_two_seg.mat";
+    dataFilename = "data/init_two_data.mat";
+    isSingleMouse = 0;
     createTestData(segmentFilename, dataFilename);
     outputFilename = binning(segmentFilename, dataFilename, isSingleMouse);
-    csi(outputFilename);
+    % csi(outputFilename);
 end
 
 function setupSource
