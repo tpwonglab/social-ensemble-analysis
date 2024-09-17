@@ -1,15 +1,11 @@
 function outputFilename = binning(segmentFilename, dataFilename, isSingleMouse)
     %% Define segment
     if isempty(segmentFilename)
-        disp("Create new segment file")
         segment = askSegmentPrompt;
     else
-        disp("Create new segment file")
-        disp("Load " + segmentFilename + " file")
         segment = load(segmentFilename);
     end
     if isempty(dataFilename)
-        disp("Missing data filename");
         quit(2);
     end
 
