@@ -6,6 +6,7 @@ function csi(filename)
 
     % Determine how many segments
     [seg,frame]=size(NeuP);
+    seg = 1:seg;
     num_seg = numel(seg);
     
     % Change X dimension to an even number
@@ -88,7 +89,9 @@ function csi(filename)
     
     %% Calculating CSI of NeuP for different behavioral vectors
     % similarity index: dot sum of two vectors divided by the product of their norm values. 
+    [xx,frame]=size(NeuP);
     frames=1:frame;
+    seg=1:numel(seg);
     num_seg = numel(seg);
     
     simI_DistH(num_seg)=0;
@@ -167,11 +170,13 @@ function csi(filename)
 
     %% Save simularity index > 95.0% of randomized values (or < 5%)
     % SI information
+    CSI.all=seg(find(SSeg_DistH>4750|SSeg_DistH<250));
+    CSI.allPercent=numel(CSI.all)/num_seg;
     CSI.Speed=seg(find(SSeg_Speed>4750));
     CSI.Compass=seg(find(SSeg_Compass>4750));
     CSI.Behav=seg(find(SSeg_Behav>4750));
-    
-    % SI from Behav, BehavF2F, Close & Far with odd even correlation > 0.4
+
+    CSI.allmin_CSI_DistH=simI_DistH;
     CSI.allmin_CSI_Behav=simI_Behav;
     
     % placecell information
