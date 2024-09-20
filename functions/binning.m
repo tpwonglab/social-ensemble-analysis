@@ -1,15 +1,11 @@
-function binning(segmentFilename, dataFilename)
+function outputFilename = binning(segmentFilename, dataFilename, isSingleMouse)
     %% Define segment
     if isempty(segmentFilename)
-        disp("Create new segment file")
         segment = askSegmentPrompt;
     else
-        disp("Create new segment file")
-        disp("Load " + segmentFilename + " file")
         segment = load(segmentFilename);
     end
     if isempty(dataFilename)
-        disp("Missing data filename");
         quit(2);
     end
 
@@ -50,12 +46,118 @@ function binning(segmentFilename, dataFilename)
     end
     % trimming data to remove data points without CNMF-E analysis
     NeuS=tempNeuS(:,binnedCaImg(1,1):binnedCaImg(CaImgRawFN,1));
-    % Recreate since previous variable with same name has been modified from initial state
-    CaImgTime=timestamp.sysClock(timestamp.camNum==segment.CaImgChannel);
-    binnedCaImg=discretize(CaImgTime,edgeTime);
 
     %% Bin Behavioral Recording
-    % binning behavioral data from coordinates
+    if isSingleMouse == 1
+        [frame, items]=size(coordinates.xn);
+        Xbox=mean(coordinates.xbox);
+        Ybox=mean(coordinates.ybox);
+        % Calculate the head distance between mouse and box
+        for i=1:frame
+            coordinates.h2boxDist(i)=sqrt(((coordinates.yh(i)-Ybox)^2)+((coordinates.xh(i)-Xbox)^2));
+        end
+        % Calculate the head angle between mouse and box
+        for i=1:frame
+            serX=[Xbox coordinates.xh(i) coordinates.xn(i)];
+            serY=[Ybox coordinates.yh(i) coordinates.yn(i)];
+            c=sqrt((Ybox-coordinates.yn(i))^2+(Xbox-coordinates.xn(i))^2);
+            a=sqrt((Ybox-coordinates.yh(i))^2+(Xbox-coordinates.xh(i))^2);
+            b=sqrt((coordinates.yh(i)-coordinates.yn(i))^2+(coordinates.xh(i)-coordinates.xn(i))^2);
+            d=rad2deg(acos((b^2+c^2-a^2)/(2*b*c)));
+            tf=ispolycw(serX,serY);
+            if tf>0
+                coordinates.angle(i)=d;
+            else
+                coordinates.angle(i)=0-d;
+            end
+        end
+        % Calculate the compass angle (direction) for the observer mouse
+        Compass(numel(coordinates.xn)) = 0; Compass = Compass.';
+        for i=1:frame
+            serX=[coordinates.xn(i) coordinates.xh(i) coordinates.xn(i)];
+            serY=[0 coordinates.yh(i) coordinates.yn(i)];
+            c=sqrt((0-coordinates.yn(i))^2+(coordinates.xn(i)-coordinates.xn(i))^2);
+            a=sqrt((0-coordinates.yh(i))^2+(coordinates.xn(i)-coordinates.xh(i))^2);
+            b=sqrt((coordinates.yh(i)-coordinates.yn(i))^2+(coordinates.xh(i)-coordinates.xn(i))^2);
+            d=rad2deg(acos((b^2+c^2-a^2)/(2*b*c)));
+            tf=ispolycw(serX,serY);
+            if tf>0
+                coordinates.direction1(i)=360-d;
+                Compass(i) = 360 - d;
+            else
+                coordinates.direction1(i)=d;
+                Compass(i) = d;
+            end
+        end
+
+        BehavTime=timestamp.sysClock(timestamp.camNum==segment.BehavChannel);
+        binnedBehav=discretize(BehavTime,edgeTime);
+        tempHeadX=accumarray(binnedBehav,coordinates.xn,[],@mean);
+        tempHeadY=accumarray(binnedBehav,coordinates.yn,[],@mean);
+        tempNoseX=accumarray(binnedBehav,coordinates.xh,[],@mean);
+        tempNoseY=accumarray(binnedBehav,coordinates.yh,[],@mean);
+        tempAngle=accumarray(binnedBehav,coordinates.angle,[],@mean);
+        tempDistanceH=accumarray(binnedBehav,coordinates.h2boxDist,[],@mean);
+
+        HeadX=tempHeadX(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
+        HeadY=tempHeadY(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
+        NoseX=tempNoseX(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
+        NoseY=tempNoseY(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
+        Angle=tempAngle(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
+        DistanceH=tempDistanceH(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
+
+        % Speed and Displacement
+        frames=numel(Angle);
+        Speed(frames)=0;
+        Displacement(frames)=0;
+        for i=1:frames-1
+            Speed(i+1)=sqrt((HeadX(i+1)-HeadX(i))^2+(HeadY(i+1)-HeadY(i))^2)*5;
+            Displacement(i+1)=sqrt((HeadX(i+1)-HeadX(i))^2+(HeadY(i+1)-HeadY(i))^2);
+        end
+        Speed=Speed.';
+        Displacement=Displacement.';
+
+        % Remove extra frames
+        if length(Angle)>length(NeuS)
+            Angle(length(Angle))=[];
+            HeadX(length(Angle))=[];
+            HeadY(length(Angle))=[];
+            NoseX(length(Angle))=[];
+            NoseY(length(Angle))=[];
+            DistanceH(length(Angle))=[];
+            Speed(length(Angle))=[];
+            Displacement(length(Angle))=[];
+        end
+
+        % Generate NeuP from findpeaks
+        NeuP(seg,length(HeadX))=0;
+        for i=1:seg
+            [peaks,locs]=findpeaks(NeuS(i,:));
+            for j=1:numel(peaks)
+                NeuP(i,locs(j))=1;
+            end
+        end
+
+        % estimate Close and Far
+        A50_D10=find(Angle>-50&Angle<50&DistanceH<10);
+        A50_Dfar=find(Angle>-50&Angle<50&DistanceH>25);
+        frames=length(Angle);
+        
+        Behav_zeros=zeros(1,frames);
+        Behav_A50_D10=Behav_zeros;
+        Behav_A50_D10(A50_D10)=1;
+        Behav_A50_Dfar=Behav_zeros;
+        Behav_A50_Dfar(A50_Dfar)=1;
+        segment.binwidth=binwidth;
+        filename=segment.mouseID + '_' + segment.session + '.mat';
+        if exist(filename, "file")
+            delete(filename);
+        end
+        outputFilename = filename;
+        save(filename, 'coordinates', 'timestamp', 'neuron', 'segment', 'HeadX', 'HeadY', 'NoseX', 'NoseY', 'Xbox', 'Ybox', 'Angle', 'Compass', 'DistanceH', 'NeuS', 'NeuP', 'Behav_A50_D10', 'Behav_A50_Dfar', 'Displacement', 'Speed');
+        return
+    end
+    % Binning behavioral data from coordinates
     BehavTime=timestamp.sysClock(timestamp.camNum==segment.BehavChannel);
     binnedBehav=discretize(BehavTime,edgeTime);
     tempHeadX=accumarray(binnedBehav,coordinates.xn,[],@mean);
@@ -76,7 +178,6 @@ function binning(segmentFilename, dataFilename)
     NoseY=tempNoseY(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
     NoseY2=tempNoseY2(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
 
-    %% Calculate Angle, Displacement and Speed
     % Speed and Displacement
     frames=numel(HeadX);
     Speed(frames)=0;
@@ -160,6 +261,7 @@ function binning(segmentFilename, dataFilename)
     if exist(filename, "file")
         delete(filename);
     end
+    outputFilename = filename;
     save(filename,'coordinates','timestamp', 'neuron','segment','HeadX','HeadX2','HeadY','HeadY2','NoseX','NoseX2','NoseY','NoseY2','Angle','Angle2','Compass','DistanceH','NeuS','NeuP','Behav_A50_D10','Behav_A50_Dfar','Displacement','Speed');
 end
 

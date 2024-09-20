@@ -3,16 +3,35 @@ clc;
 main()
 
 function main
+    totalNumSteps = 5;
+    currentStep = 0;
     addpath("functions");
+    loadBar = waitbar(cuCSI.allmin_CSI_DistHrrentStep/totalNumSteps, "Starting up Social Valence Data Pipeline...");
+    currentStep = currentStep + 1;
+    
+    waitbar(currentStep/totalNumSteps, loadBar, "Setup CNMF Source2D visualization...");
+    currentStep = currentStep + 1;
     setupSource()
+
+    waitbar(currentStep/totalNumSteps, loadBar, "Create Testing Data...");
+    currentStep = currentStep + 1;
     segmentFilename = "data/init_two_seg.mat";
     dataFilename = "data/init_two_data.mat";
+    isSingleMouse = 0;
     createTestData(segmentFilename, dataFilename);
-    binning(segmentFilename, dataFilename);
+
+    waitbar(currentStep/totalNumSteps, loadBar, "Bin Given Data...");
+    currentStep = currentStep + 1;
+    outputFilename = binning(segmentFilename, dataFilename, isSingleMouse);
+
+    waitbar(currentStep/totalNumSteps, loadBar, "Apply CSI to Given Data...");
+    currentStep = currentStep + 1;
+    csi(outputFilename);
+
+    waitbar(currentStep/totalNumSteps, loadBar, "Complete.");
 end
 
 function setupSource
-    disp("Run CNMF script to view Sources2D data");
     run CNMF_E/cnmfe_setup.m;
 end
 
@@ -20,7 +39,6 @@ function createTestData(segmentFilename, dataFilename)
     if exist(segmentFilename, "file") && exist(dataFilename, "file")
         return
     end
-    disp("Create simulation configuration file");
     data = load("CSDS/1035_Def8.mat");
     defineInitExp(data.segment, segmentFilename);
     defineInitData(data, dataFilename);
