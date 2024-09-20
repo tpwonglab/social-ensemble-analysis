@@ -3,32 +3,20 @@ clc;
 main()
 
 function main
-    totalNumSteps = 5;
-    currentStep = 0;
-    addpath("functions");
-    loadBar = waitbar(cuCSI.allmin_CSI_DistHrrentStep/totalNumSteps, "Starting up Social Valence Data Pipeline...");
-    currentStep = currentStep + 1;
-    
-    waitbar(currentStep/totalNumSteps, loadBar, "Setup CNMF Source2D visualization...");
-    currentStep = currentStep + 1;
-    setupSource()
+    addpath("functions");    
 
-    waitbar(currentStep/totalNumSteps, loadBar, "Create Testing Data...");
-    currentStep = currentStep + 1;
-    segmentFilename = "data/init_two_seg.mat";
-    dataFilename = "data/init_two_data.mat";
-    isSingleMouse = 0;
-    createTestData(segmentFilename, dataFilename);
+    % setupSource()
+    % 
+    % segmentFilename = "data/init_two_seg.mat";
+    % dataFilename = "data/init_two_data.mat";
+    % isSingleMouse = 0;
+    % createTestData(segmentFilename, dataFilename);
+    % 
+    % outputFilename = binning(segmentFilename, dataFilename, isSingleMouse);
+    % 
+    % csi(outputFilename);
 
-    waitbar(currentStep/totalNumSteps, loadBar, "Bin Given Data...");
-    currentStep = currentStep + 1;
-    outputFilename = binning(segmentFilename, dataFilename, isSingleMouse);
-
-    waitbar(currentStep/totalNumSteps, loadBar, "Apply CSI to Given Data...");
-    currentStep = currentStep + 1;
-    csi(outputFilename);
-
-    waitbar(currentStep/totalNumSteps, loadBar, "Complete.");
+    ensemble(outputFilename, 1);
 end
 
 function setupSource
