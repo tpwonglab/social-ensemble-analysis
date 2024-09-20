@@ -6,7 +6,7 @@ function main
     totalNumSteps = 5;
     currentStep = 0;
     addpath("functions");
-    loadBar = waitbar(currentStep/totalNumSteps, "Starting up Social Valence Data Pipeline...");
+    loadBar = waitbar(cuCSI.allmin_CSI_DistHrrentStep/totalNumSteps, "Starting up Social Valence Data Pipeline...");
     currentStep = currentStep + 1;
     
     waitbar(currentStep/totalNumSteps, loadBar, "Setup CNMF Source2D visualization...");
