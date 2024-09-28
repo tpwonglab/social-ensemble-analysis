@@ -3,38 +3,104 @@ clc;
 main()
 
 function main
-    addpath("functions");    
+    disp("Let's get started...");
 
-    % setupSource()
-    % 
-    % segmentFilename = "data/init_two_seg.mat";
-    % dataFilename = "data/init_two_data.mat";
-    % isSingleMouse = 0;
-    % createTestData(segmentFilename, dataFilename);
-    % 
-    % outputFilename = binning(segmentFilename, dataFilename, isSingleMouse);
-    % 
-    % csi(outputFilename);
+    % User Inputs
+    testingFilename = "CSDS/1144_SDT.mat";
+    experimentName = "SDT";
+    segmentFilename = "data/init_" + experimentName + "_seg.mat";
+    dataFilename = "data/init_" + experimentName + "_data.mat";
+    startFrame = 1;
 
-    ensemble(outputFilename, 1);
+    addpath("functions");
+
+    disp("0. Setup Source2D visualization");
+    tic
+    setupSource()
+    toc
+
+    disp("1. Create initial data");
+    tic
+    createTestData(testingFilename, segmentFilename, dataFilename, experimentName);
+    toc
+
+    disp("2. Create binning between Calcium Imaging and Experiment Video");
+    tic
+    outputFilename = binning(segmentFilename, dataFilename, experimentName);
+    toc
+
+    disp("3. Apply CSI");
+    tic
+    csi(outputFilename, experimentName);
+    toc
+
+    disp("4. Ensemble behavioural");
+    tic
+    ensemble(outputFilename, startFrame, experimentName);
+    toc
+
+    disp("5. Flat map all scenario specific data");
+    data = load(outputFilename);
+    suffixes = [""];
+    if experimentName == "SDT"
+        suffixes = ["_A", "_N"];
+    end
+    tic
+    for k = 1:length(suffixes)
+        flatten_mouse = struct();
+        suffix = suffixes(k);
+        mouseName = "mouse" + suffix;
+        mouse = data.(mouseName);
+        mouseFields = fieldnames(mouse);
+        for i = 1:numel(mouseFields)
+            name = mouseFields{i};
+            flatten_mouse.(name + suffix) = mouse.(name);
+        end
+        save(outputFilename, "-struct", "flatten_mouse", "-append");
+    end
+    toc
+
+    disp("6. Remove redundant data from mat file");
+    tic
+    data = load(outputFilename);
+    for k = 1:length(suffixes)
+        suffix = suffixes(k);
+        fieldName = "mouse" + suffix;
+        if isfield(data, fieldName) == 1
+            data = rmfield(data, fieldName);
+        end
+    end
+    save(outputFilename, "-struct", "data");
+    toc
+
+    disp("7. Plot behavioural data");
+    tic
+    if experimentName == "SDT"
+        ensemble_plot_mult(outputFilename);
+    else
+        ensemble_plot(outputFilename);
+    end
+    toc
+
+    disp("Completed.");
 end
 
 function setupSource
     run CNMF_E/cnmfe_setup.m;
 end
 
-function createTestData(segmentFilename, dataFilename)
+function createTestData(initialData, segmentFilename, dataFilename, experimentName)
     if exist(segmentFilename, "file") && exist(dataFilename, "file")
         return
     end
-    data = load("CSDS/1035_Def8.mat");
-    defineInitExp(data.segment, segmentFilename);
+    data = load(initialData);
+    defineInitExp(data.segment, segmentFilename, experimentName);
     defineInitData(data, dataFilename);
 end
 
-function defineInitExp(data, filename)
+function defineInitExp(data, filename, experimentName)
     mouseID = "1";
-    session = "test";
+    session = experimentName;
     CaImgChannel = data.CaImgChannel;
     BehavChannel = data.BehavChannel;
     CaImgRawFN = data.CaImgRawFN;
@@ -50,7 +116,7 @@ function defineInitExp(data, filename)
     seg = data.seg;
     NeuStart = data.NeuStart;
     NeuEnd = data.NeuEnd;
-    save("data/" + filename, "mouseID", "session", ...
+    save(filename, "mouseID", "session", ...
         "CaImgChannel", "BehavChannel", ...
         "CaImgRawFN", "CaImgRawtime", ...
         "BehavRawFN", "BehavRawtime", ...
