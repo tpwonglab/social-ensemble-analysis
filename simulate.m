@@ -5,12 +5,18 @@ main()
 function main
     disp("Let's get started...");
 
-    % User Inputs
-    testingFilename = "CSDS/1144_SDT.mat";
-    experimentName = "SDT";
-    segmentFilename = "data/init_" + experimentName + "_seg.mat";
-    dataFilename = "data/init_" + experimentName + "_data.mat";
-    startFrame = 1;
+    mouseID = input("Enter Mouse ID: ");
+    experimentName = input("Enter Experiment Type (SI, Def, SDT): ");
+    sectionNum = input("Enter Section Number (If none exists, press Enter): ");
+    if isempty(sectionNum)
+        segmentFilename = "data/init_" + mouseID + "_" + experimentName + "_seg.mat";
+        dataFilename = "data/init_" + experimentName + "_data.mat";
+    else
+        segmentFilename = "data/init_" + mouseID + "_" + experimentName + "_" + sectionNum + "_seg.mat";
+        dataFilename = "data/init_" + experimentName + "_" + sectionNum + "_data.mat";
+    end
+    startFrame = input("Enter ensemble starting frame number: ");
+    endFrame = input("Enter ensemble starting frame number (if none, enter -1): ");
 
     addpath("functions");
 
@@ -19,27 +25,22 @@ function main
     setupSource()
     toc
 
-    disp("1. Create initial data");
-    tic
-    createTestData(testingFilename, segmentFilename, dataFilename, experimentName);
-    toc
-
-    disp("2. Create binning between Calcium Imaging and Experiment Video");
+    disp("1. Create binning between Calcium Imaging and Experiment Video");
     tic
     outputFilename = binning(segmentFilename, dataFilename, experimentName);
     toc
 
-    disp("3. Apply CSI");
+    disp("2. Apply CSI");
     tic
     csi(outputFilename, experimentName);
     toc
 
-    disp("4. Ensemble behavioural");
+    disp("3. Ensemble behavioural");
     tic
-    ensemble(outputFilename, startFrame, experimentName);
+    ensemble(outputFilename, startFrame, endFrame, experimentName);
     toc
 
-    disp("5. Flat map all scenario specific data");
+    disp("4. Flat map all scenario specific data");
     data = load(outputFilename);
     suffixes = [""];
     if experimentName == "SDT"
@@ -60,7 +61,7 @@ function main
     end
     toc
 
-    disp("6. Remove redundant data from mat file");
+    disp("5. Remove redundant data from mat file");
     tic
     data = load(outputFilename);
     for k = 1:length(suffixes)
@@ -73,7 +74,7 @@ function main
     save(outputFilename, "-struct", "data");
     toc
 
-    disp("7. Plot behavioural data");
+    disp("6. Plot behavioural data");
     tic
     if experimentName == "SDT"
         ensemble_plot_mult(outputFilename);

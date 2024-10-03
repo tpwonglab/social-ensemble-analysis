@@ -1,4 +1,4 @@
-function ensemble(dataFilename, startFrame, experimentName)
+function ensemble(dataFilename, startFrame, endFrame, experimentName)
     if isempty(dataFilename)
             quit(2);
     end
@@ -24,6 +24,11 @@ function ensemble(dataFilename, startFrame, experimentName)
         counts(1:25,1)=0;
         counts((length(counts)-15:length(counts)))=0;
         counts(1:startFrame,1)=0;
+        % Add endFrame to end of counts
+        if endFrame == -1
+            endFrame = length(counts);
+        end
+        counts(endFrame:length(counts), 1) = 0;
         
         Behav_A50_D10=counts;
         
