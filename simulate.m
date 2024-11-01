@@ -10,10 +10,10 @@ function main
     sectionNum = input("Enter Section Number (If none exists, press Enter): ");
     if isempty(sectionNum)
         segmentFilename = "data/init_" + mouseID + "_" + experimentName + "_seg.mat";
-        dataFilename = "data/init_" + experimentName + "_data.mat";
+        dataFilename = "data/init_" + mouseID + "_" + experimentName + "_data.mat";
     else
         segmentFilename = "data/init_" + mouseID + "_" + experimentName + "_" + sectionNum + "_seg.mat";
-        dataFilename = "data/init_" + experimentName + "_" + sectionNum + "_data.mat";
+        dataFilename = "data/init_" + mouseID + "_" + experimentName + "_" + sectionNum + "_data.mat";
     end
     startFrame = input("Enter ensemble starting frame number: ");
     endFrame = input("Enter ensemble starting frame number (if none, enter -1): ");
