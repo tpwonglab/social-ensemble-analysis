@@ -16,7 +16,7 @@ function main
         dataFilename = "data/init_" + mouseID + "_" + experimentName + "_" + sectionNum + "_data.mat";
     end
     startFrame = input("Enter ensemble starting frame number: ");
-    endFrame = input("Enter ensemble starting frame number (if none, enter -1): ");
+    endFrame = input("Enter ensemble ending frame number (if none, enter -1): ");
 
     addpath("functions");
 
