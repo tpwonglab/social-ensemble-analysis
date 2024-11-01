@@ -15,8 +15,6 @@ function main
         segmentFilename = "data/init_" + mouseID + "_" + experimentName + "_" + sectionNum + "_seg.mat";
         dataFilename = "data/init_" + mouseID + "_" + experimentName + "_" + sectionNum + "_data.mat";
     end
-    startFrame = input("Enter ensemble starting frame number: ");
-    endFrame = input("Enter ensemble ending frame number (if none, enter -1): ");
 
     addpath("functions");
 
@@ -36,6 +34,8 @@ function main
     toc
 
     disp("3. Ensemble behavioural");
+    startFrame = input("Enter ensemble starting frame number: ");
+    endFrame = input("Enter ensemble ending frame number (if none, enter -1): ");
     tic
     ensemble(outputFilename, startFrame, endFrame, experimentName);
     toc
