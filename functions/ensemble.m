@@ -34,8 +34,7 @@ function ensemble(segmentFilename, dataFilename, experimentName)
         counts((length(counts)-15:length(counts)))=0;
         counts(1:1,1)=0;
 
-        endFrame = length(counts);
-        counts(endFrame:length(counts), 1) = 0;
+        counts(length(counts):length(counts), 1) = 0;
         
         Behav_A50_D10=counts;
         
