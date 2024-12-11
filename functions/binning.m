@@ -168,30 +168,7 @@ function outputFilename = binning(segmentFilename, dataFilename, experimentName)
                 Xbox=mean(coordinates.xbox);
                 Ybox=mean(coordinates.ybox);
             end
-            % Calculate the head distance between mouse and box
-%             for i=1:frame
-%                 coordinates.h2boxDist(i)=sqrt(((coordinates.yh(i)-Ybox)^2)+((coordinates.xh(i)-Xbox)^2));
-%             end
-%             % Calculate the head angle between mouse and box
-%             for i=1:frame
-%                 serX=[Xbox coordinates.xh(i) coordinates.xn(i)];
-%                 serY=[Ybox coordinates.yh(i) coordinates.yn(i)];
-%                 c=sqrt((Ybox-coordinates.yn(i))^2+(Xbox-coordinates.xn(i))^2);
-%                 a=sqrt((Ybox-coordinates.yh(i))^2+(Xbox-coordinates.xh(i))^2);
-%                 b=sqrt((coordinates.yh(i)-coordinates.yn(i))^2+(coordinates.xh(i)-coordinates.xn(i))^2);
-%                 d=rad2deg(acos((b^2+c^2-a^2)/(2*b*c)));
-%                 tf=ispolycw(serX,serY);
-%                 if tf>0
-%                     coordinates.angle(i)=d;
-%                 else
-%                     coordinates.angle(i)=0-d;
-%                 end
-%             end
-%     
-%             tempDistanceH=accumarray(binnedBehav,coordinates.h2boxDist,[],@mean);
-%             DistanceH=tempDistanceH(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
-%             tempAngle=accumarray(binnedBehav,coordinates.angle,[],@mean);
-%             Angle=tempAngle(binnedBehav(segment.BehavStartFN,1):binnedBehav(segment.BehavEndFN,1),1);
+
             DistanceH(numel(HeadX))=0;DistanceH=DistanceH.';
             Angle(numel(HeadX))=0;Angle=Angle.';
             Compass(numel(HeadX)) = 0; 
@@ -222,12 +199,7 @@ function outputFilename = binning(segmentFilename, dataFilename, experimentName)
         end
         save(outputFilename, "coordinates", "-append");
         %% Save binning behavioural data points
-%         if headSize > length(NeuS)
-%             if experimentName ~= "Def"
-%                 Angle(headSize) = [];
-%                 DistanceH(headSize) = [];
-%             end
-%         end
+
         if experimentName == "Def"
             mouse.("Angle2") = Angle2;
         end
