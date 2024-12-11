@@ -2,8 +2,10 @@ function ensemble_plot(filename)
     if isempty(filename)
             quit(2);
     end
+    
     data = load(filename);
     ensb_Behav = data.ensb_Behav;
+    if isfield(data,'ensb_Behav40')
     ensb_Behav40 = data.ensb_Behav40;
     NeuP = data.NeuP;
 
@@ -31,4 +33,5 @@ function ensemble_plot(filename)
     plot(mmNeuP + semNeuP)
     plot(mmNeuP - semNeuP)
     save(filename, "NumClose", "meanNeuP", "sumNeuP", "mmNeuP", "sdNeuP", "semNeuP", "totalNeuP", "-append")
+    end
 end

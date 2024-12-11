@@ -6,7 +6,7 @@ function main
     disp("Let's get started...");
 
     mouseID = input("Enter Mouse ID: ");
-    experimentName = input("Enter Experiment Type (SI, Def, SDT): ");
+    experimentName = input("Enter Experiment Type (SI, Def, SDT): ",'s');
     sectionNum = input("Enter Section Number (If none exists, press Enter): ");
     if isempty(sectionNum)
         segmentFilename = "data/init_" + mouseID + "_" + experimentName + "_seg.mat";
@@ -34,10 +34,12 @@ function main
     toc
 
     disp("3. Ensemble behavioural");
-    startFrame = input("Enter ensemble starting frame number: ");
-    endFrame = input("Enter ensemble ending frame number (if none, enter -1): ");
+%     startFrame = input("Enter ensemble starting frame number: ");
+    startFrame = 1;
+%     endFrame = input("Enter ensemble ending frame number (if none, enter -1): ");
+    endFrame = -1;
     tic
-    ensemble(outputFilename, startFrame, endFrame, experimentName);
+    ensemble(segmentFilename, outputFilename, startFrame, endFrame, experimentName);
     toc
 
     disp("4. Flat map all scenario specific data");
