@@ -6,7 +6,7 @@ function main
     disp("Let's get started...");
 
     mouseID = input("Enter Mouse ID: ");
-    experimentName = input("Enter Experiment Type (SI, Def, SDT): ");
+    experimentName = input("Enter Experiment Type (SI, Def, SDT): ",'s');
     sectionNum = input("Enter Section Number (If none exists, press Enter): ");
     if isempty(sectionNum)
         segmentFilename = "data/init_" + mouseID + "_" + experimentName + "_seg.mat";
@@ -34,10 +34,8 @@ function main
     toc
 
     disp("3. Ensemble behavioural");
-    startFrame = input("Enter ensemble starting frame number: ");
-    endFrame = input("Enter ensemble ending frame number (if none, enter -1): ");
     tic
-    ensemble(outputFilename, startFrame, endFrame, experimentName);
+    ensemble(segmentFilename, outputFilename, startFrame, endFrame, experimentName);
     toc
 
     disp("4. Flat map all scenario specific data");
@@ -74,16 +72,7 @@ function main
     save(outputFilename, "-struct", "data");
     toc
 
-    disp("6. Plot behavioural data");
-    tic
-    if experimentName == "SDT"
-        ensemble_plot_mult(outputFilename);
-    else
-        ensemble_plot(outputFilename);
-    end
-    toc
-
-    disp("Completed.");
+    disp("You may now run the following script: ensemble_activity_firingrate_seg40_CSDS.mlx");
 end
 
 function setupSource

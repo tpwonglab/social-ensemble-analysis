@@ -1,4 +1,4 @@
-function ensemble(dataFilename, startFrame, endFrame, experimentName)
+function ensemble(segmentFilename, dataFilename, experimentName)
     if isempty(dataFilename)
             quit(2);
     end
@@ -14,6 +14,15 @@ function ensemble(dataFilename, startFrame, endFrame, experimentName)
         mouseName = "mouse" + suffix;
         Behav_A50_D10 = data.(mouseName).Behav_A50_D10;
         Behav_A50_Dfar = data.(mouseName).Behav_A50_Dfar;
+        if experimentName == "SI1"
+            load(segmentFilename);
+            Behav_A50_D10(startS2:endS2)=0;
+            Behav_A50_Dfar(startS2:endS2)=0;
+        elseif experimentName == "SI2"
+            load(segmentFilename);
+            Behav_A50_D10(1:startS2-1)=0;
+            Behav_A50_Dfar(1:startS2-1)=0;
+        end
         NeuP = data.NeuP;
         DistanceH = data.(mouseName).DistanceH;
         Compass = data.(mouseName).Compass;
@@ -23,12 +32,9 @@ function ensemble(dataFilename, startFrame, endFrame, experimentName)
         counts=Behav_A50_D10;
         counts(1:25,1)=0;
         counts((length(counts)-15:length(counts)))=0;
-        counts(1:startFrame,1)=0;
-        % Add endFrame to end of counts
-        if endFrame == -1
-            endFrame = length(counts);
-        end
-        counts(endFrame:length(counts), 1) = 0;
+        counts(1:1,1)=0;
+
+        counts(length(counts):length(counts), 1) = 0;
         
         Behav_A50_D10=counts;
         
@@ -38,6 +44,10 @@ function ensemble(dataFilename, startFrame, endFrame, experimentName)
             end
         end
         
+        tempAns=input("Initiate ensemble analysis (Yes=1; No=0)? ");
+
+        if tempAns==1
+
         CloseEvents=find(counts==5);
         CloseEventsFrames(length(Behav_A50_D10))=0;
         for i=1:numel(CloseEvents)
@@ -67,8 +77,11 @@ function ensemble(dataFilename, startFrame, endFrame, experimentName)
         
         DistanceH=50-DistanceH;
         
+        Iter=[];
+
         % Can only run for 5 times for now (but if possible, run 9 times)
-        for x=0.1:0.1:0.5
+        Iter = input("Enter number of iterations: ");
+        for x=0.1:0.1:Iter/10
         
             result.percent(ct)=x;
             resultSpec.percent=x;
@@ -344,19 +357,34 @@ function ensemble(dataFilename, startFrame, endFrame, experimentName)
             ensb_Behav=result;
         end
         ensb = struct();
-        ensb.("ensb_Behav10" + suffix) = struct();
-        ensb.("ensb_Behav10" + suffix) = ensb_Behav10;
-        ensb.("ensb_Behav20" + suffix) = struct();
-        ensb.("ensb_Behav20" + suffix) = ensb_Behav20;
-        ensb.("ensb_Behav30" + suffix) = struct();
-        ensb.("ensb_Behav30" + suffix) = ensb_Behav30;
-        ensb.("ensb_Behav40" + suffix) = struct();
-        ensb.("ensb_Behav40" + suffix) = ensb_Behav40;
-        ensb.("ensb_Behav50" + suffix) = struct();
-        ensb.("ensb_Behav50" + suffix) = ensb_Behav50;
+        if exist('ensb_Behav10')
+            ensb.("ensb_Behav10" + suffix) = struct();
+            ensb.("ensb_Behav10" + suffix) = ensb_Behav10;
+        end
+        if exist('ensb_Behav20')
+            ensb.("ensb_Behav20" + suffix) = struct();
+            ensb.("ensb_Behav20" + suffix) = ensb_Behav20;
+        end
+        if exist('ensb_Behav30')
+            ensb.("ensb_Behav30" + suffix) = struct();
+            ensb.("ensb_Behav30" + suffix) = ensb_Behav30;
+        end
+        if exist('ensb_Behav40')
+            ensb.("ensb_Behav40" + suffix) = struct();
+            ensb.("ensb_Behav40" + suffix) = ensb_Behav40;
+        end
+        if exist('ensb_Behav50')
+            ensb.("ensb_Behav50" + suffix) = struct();
+            ensb.("ensb_Behav50" + suffix) = ensb_Behav50;
+        end
         ensb.("ensb_Behav" + suffix) = struct();
         ensb.("ensb_Behav" + suffix) = ensb_Behav;
         save(dataFilename, "-struct", "ensb", "-append");
+        if isempty(extract(experimentName,'SI'))==0&exist('endS2new')
+            save(dataFilename, "startS1", "startS2", "endS1", "endS2", "endS2new", "-append")
+        elseif isempty(extract(experimentName,'SI'))==0
+            save(dataFilename, "startS1", "startS2", "endS1", "endS2", "-append")
+        end
     end
 end
 
